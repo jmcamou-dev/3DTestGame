@@ -93,30 +93,30 @@ function setupMoveJoystickEvents() {
         // Calculate direction based on angle
         // Forward (up)
         if (angle > 5.5 || angle < 0.8) {
-            moveForward = false;
-            moveBackward = true;
+            moveLeft = false;
+            moveRight = true;
         } 
         // Backward (down)
         else if (angle > 2.35 && angle < 3.9) {
+            moveRight = false;
+            moveLeft = true;
+        } else {
+            moveLeft = false;
+            moveRight = false;
+        }
+        
+        // Left - fixed to be actually left
+        if (angle > 3.9 && angle < 5.5) {
+            moveForward = false;
+            moveBackward = true;
+        } 
+        // Right - fixed to be actually right
+        else if (angle > 0.8 && angle < 2.35) {
             moveBackward = false;
             moveForward = true;
         } else {
             moveForward = false;
             moveBackward = false;
-        }
-        
-        // Left - fixed to be actually left
-        if (angle > 3.9 && angle < 5.5) {
-            moveLeft = true;
-            moveRight = false;
-        } 
-        // Right - fixed to be actually right
-        else if (angle > 0.8 && angle < 2.35) {
-            moveRight = true;
-            moveLeft = false;
-        } else {
-            moveLeft = false;
-            moveRight = false;
         }
     });
 }
@@ -137,13 +137,13 @@ function setupRotateJoystickEvents() {
         
         // Right rotation (anything on the left half) - fixed direction
         if (angle > 1.57 && angle < 4.71) {
-            rotateRight = true;
-            rotateLeft = false;
+            rotateRight = false;
+            rotateLeft = true;
         } 
         // Left rotation (anything on the right half) - fixed direction
         else {
-            rotateLeft = true;
-            rotateRight = false;
+            rotateLeft = false;
+            rotateRight = true;
         }
     });
 }
