@@ -93,13 +93,13 @@ function setupMoveJoystickEvents() {
         // Calculate direction based on angle
         // Forward (up)
         if (angle > 5.5 || angle < 0.8) {
-            moveForward = true;
-            moveBackward = false;
+            moveForward = false;
+            moveBackward = true;
         } 
         // Backward (down)
         else if (angle > 2.35 && angle < 3.9) {
-            moveBackward = true;
-            moveForward = false;
+            moveBackward = false;
+            moveForward = true;
         } else {
             moveForward = false;
             moveBackward = false;
