@@ -40,7 +40,7 @@ function initializeJoysticks() {
     const moveJoystickOptions = {
         zone: document.getElementById('move-joystick'),
         mode: 'static',
-        position: { left: '120px', bottom: '120px' },
+        position: { left: '100px', bottom: '120px' },
         color: 'blue',
         size: 120,
         lockX: false,
@@ -53,7 +53,7 @@ function initializeJoysticks() {
     const rotateJoystickOptions = {
         zone: document.getElementById('rotate-joystick'),
         mode: 'static',
-        position: { right: '120px', bottom: '120px' },
+        position: { right: '100px', bottom: '120px' },
         color: 'green',
         size: 120,
         lockX: true,
@@ -105,13 +105,13 @@ function setupMoveJoystickEvents() {
             moveBackward = false;
         }
         
-        // Left
-        if (angle > 0.8 && angle < 2.35) {
+        // Left - fixed to be actually left
+        if (angle > 3.9 && angle < 5.5) {
             moveLeft = true;
             moveRight = false;
         } 
-        // Right
-        else if (angle > 3.9 && angle < 5.5) {
+        // Right - fixed to be actually right
+        else if (angle > 0.8 && angle < 2.35) {
             moveRight = true;
             moveLeft = false;
         } else {
@@ -135,15 +135,15 @@ function setupRotateJoystickEvents() {
     rotateJoystick.on('move', (event, data) => {
         const angle = data.angle.radian;
         
-        // Left rotation (anything on the left half)
+        // Right rotation (anything on the left half) - fixed direction
         if (angle > 1.57 && angle < 4.71) {
-            rotateLeft = true;
-            rotateRight = false;
-        } 
-        // Right rotation (anything on the right half)
-        else {
             rotateRight = true;
             rotateLeft = false;
+        } 
+        // Left rotation (anything on the right half) - fixed direction
+        else {
+            rotateLeft = true;
+            rotateRight = false;
         }
     });
 }

@@ -76,12 +76,12 @@ canvas {
 
 #move-joystick {
     bottom: 30px;
-    left: 30px;
+    left: 60px;
 }
 
 #rotate-joystick {
     bottom: 30px;
-    right: 30px;
+    right: 60px;
 }
 
 /* Override some nipplejs styles for better visibility */
