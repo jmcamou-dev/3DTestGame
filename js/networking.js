@@ -3,7 +3,7 @@
  */
 function setupNetworking() {
     // Generate random game code
-    gameCode = Math.floor(100000 + Math.random() * 900000).toString();
+    gameCode = Math.floor(100 + Math.random() * 900).toString();
     document.getElementById('code').textContent = gameCode;
     
     // Initialize PeerJS
@@ -20,6 +20,12 @@ function setupNetworking() {
  * Sets up handlers for incoming connections
  */
 function setupConnectionHandling() {
+    // Handle errors
+    peer.on('error', (err) => {
+        console.error('PeerJS error:', err);
+    });
+    
+    // Handle connections
     peer.on('connection', (conn) => {
         connections.push(conn);
         
@@ -138,15 +144,39 @@ function promptForGameCode() {
  * @param {string} joinCode - The game code to join
  */
 function joinGame(joinCode) {
-    const conn = peer.connect(joinCode);
+    // Ensure PeerJS is ready before attempting to connect
+    if (!peer || !peer.id) {
+        console.error('PeerJS not ready yet. Try again in a moment.');
+        return;
+    }
     
-    conn.on('open', () => {
-        connections.push(conn);
+    try {
+        // Connect to the other peer
+        const conn = peer.connect(joinCode);
         
-        conn.on('data', (data) => {
-            handleIncomingData(conn, data);
+        // Wait for the connection to open
+        conn.on('open', () => {
+            console.log('Connected to peer:', joinCode);
+            connections.push(conn);
+            
+            // Set up data handler
+            conn.on('data', (data) => {
+                handleIncomingData(conn, data);
+            });
+            
+            // Set up close handler
+            conn.on('close', () => {
+                handleDisconnection(conn);
+            });
         });
-    });
+        
+        // Handle connection errors
+        conn.on('error', (err) => {
+            console.error('Connection error:', err);
+        });
+    } catch (err) {
+        console.error('Failed to join game:', err);
+    }
 }
 
 /**
@@ -156,12 +186,16 @@ function sendPositionUpdate() {
     if (connections.length === 0) return;
     
     connections.forEach(conn => {
-        conn.send({
-            type: 'position',
-            x: playerSphere.position.x,
-            y: playerSphere.position.y,
-            z: playerSphere.position.z,
-            color: playerColor
-        });
+        try {
+            conn.send({
+                type: 'position',
+                x: playerSphere.position.x,
+                y: playerSphere.position.y,
+                z: playerSphere.position.z,
+                color: playerColor
+            });
+        } catch (err) {
+            console.error('Failed to send position update:', err);
+        }
     });
 }

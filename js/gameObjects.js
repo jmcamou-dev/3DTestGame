@@ -52,35 +52,38 @@ function createPlayer() {
     const mainSphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
     playerGroup.add(mainSphere);
     
-    // Add a directional indicator (small cone pointing forward)
-    const coneGeometry = new THREE.ConeGeometry(0.3, 0.6, 16);
-    const coneMaterial = new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-        roughness: 0.4,
-        metalness: 0.3
-    });
-    const frontMarker = new THREE.Mesh(coneGeometry, coneMaterial);
-    frontMarker.position.z = 0.8; // Position at front of sphere
-    frontMarker.rotation.x = Math.PI / 2; // Rotate to point forward
-    playerGroup.add(frontMarker);
+    // Create face features
     
-    // Add a small eye to the main sphere
+    // Eyes (facing forward in the -Z direction)
     const eyeGeometry = new THREE.SphereGeometry(0.15, 16, 16);
     const eyeMaterial = new THREE.MeshStandardMaterial({
-        color: 0x000000, // Black eye
+        color: 0x000000, // Black eyes
         roughness: 0.1,
         metalness: 0.2
     });
     
-    // Left eye
+    // Left eye - positioned on the sphere's surface facing forward
     const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-    leftEye.position.set(0.4, 0.4, 0.9); // Position on sphere
+    leftEye.position.set(-0.4, 0.4, -0.9); // Negative Z is forward
     playerGroup.add(leftEye);
     
-    // Right eye
+    // Right eye - positioned on the sphere's surface facing forward
     const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-    rightEye.position.set(-0.4, 0.4, 0.9); // Position on sphere
+    rightEye.position.set(0.4, 0.4, -0.9); // Negative Z is forward
     playerGroup.add(rightEye);
+    
+    // Mouth (slightly curved line facing forward)
+    const mouthGeometry = new THREE.TorusGeometry(0.3, 0.05, 8, 12, Math.PI * 0.5);
+    const mouthMaterial = new THREE.MeshStandardMaterial({
+        color: 0x000000, // Black mouth
+        roughness: 0.2,
+        metalness: 0.1
+    });
+    const mouth = new THREE.Mesh(mouthGeometry, mouthMaterial);
+    mouth.position.set(0, -0.3, -0.9); // Below the eyes
+    mouth.rotation.x = Math.PI / 2; // Rotate to face forward
+    mouth.rotation.y = Math.PI; // Flip to smile
+    playerGroup.add(mouth);
     
     // Position the group
     playerGroup.position.y = 1;

@@ -8,8 +8,9 @@ function init() {
     createObstacles();
     createRedBlob();
     
-    // Setup controls and networking
+    // Setup controls, joysticks, and networking
     setupControls();
+    setupJoysticks(); // Initialize the virtual joysticks
     setupNetworking();
     
     // Start game loop
@@ -23,10 +24,16 @@ function animate() {
     requestAnimationFrame(animate);
     
     if (!playerRespawning) {
-        // Update game state
-        updatePlayerPosition();
+        // Update player movement - uses the new control system
+        updatePlayerMovement();
+        
+        // Update red blob AI
         updateRedBlob();
+        
+        // Check for collision with red blob
         checkRedBlobCollision();
+        
+        // Send position to other players
         sendPositionUpdate();
     } else {
         // Handle respawn countdown
