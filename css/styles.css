@@ -75,12 +75,12 @@ canvas {
 }
 
 #move-joystick {
-    bottom: 30px;
+    bottom: 5px;
     left: .5px;
 }
 
 #rotate-joystick {
-    bottom: 30px;
+    bottom: 5px;
     right: .5px;
 }
 
