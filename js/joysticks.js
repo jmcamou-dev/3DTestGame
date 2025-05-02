@@ -4,7 +4,6 @@
 
 // Joystick variables
 let moveJoystick, rotateJoystick;
-let joysticksVisible = true;
 
 /**
  * Creates and initializes the virtual joysticks

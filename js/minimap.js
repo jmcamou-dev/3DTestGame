@@ -2,13 +2,9 @@
  * Minimap system for 3D Sphere Game
  */
 
-// Minimap constants
-const MINIMAP_SIZE = 200;
-const MINIMAP_SCALE = 2.5;
-
 // Minimap variables
 let minimapCanvas, minimapContext;
-let minimapVisible = true;
+
 
 /**
  * Initializes the minimap
@@ -20,13 +16,15 @@ function initMinimap() {
     minimapCanvas.height = MINIMAP_SIZE;
     minimapCanvas.id = 'minimap';
     minimapCanvas.style.position = 'absolute';
-    minimapCanvas.style.bottom = '20px';
-    minimapCanvas.style.right = '20px';
+    minimapCanvas.style.top = '50%';
+    minimapCanvas.style.left = '50%';
+    minimapCanvas.style.transform = 'translate(-50%, -50%)';
     minimapCanvas.style.borderRadius = '50%';
     minimapCanvas.style.border = '3px solid rgba(255, 255, 255, 0.5)';
     minimapCanvas.style.backgroundColor = 'rgba(0, 0, 0, 0.6)';
     minimapCanvas.style.zIndex = '1000';
     minimapCanvas.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
+    minimapCanvas.style.display = 'none'; // Hidden initially
     
     // Get context
     minimapContext = minimapCanvas.getContext('2d');
@@ -44,7 +42,7 @@ function initMinimap() {
 function createMinimapToggle() {
     const toggleBtn = document.createElement('div');
     toggleBtn.id = 'minimap-toggle';
-    toggleBtn.textContent = 'Hide Map';
+    toggleBtn.textContent = 'Show Map';
     toggleBtn.style.position = 'absolute';
     toggleBtn.style.bottom = '20px';
     toggleBtn.style.right = `${MINIMAP_SIZE + 30}px`;
@@ -194,7 +192,7 @@ function updateMinimap() {
     minimapContext.fill();
     
     // Draw player direction indicator
-    const dirX = centerX + Math.sin(playerSphere.rotation.y) * 8;
+    const dirX = centerX - Math.sin(playerSphere.rotation.y) * 8;
     const dirZ = centerY - Math.cos(playerSphere.rotation.y) * 8;
     
     minimapContext.beginPath();
@@ -205,7 +203,7 @@ function updateMinimap() {
     minimapContext.stroke();
     
     // Draw compass rose
-    drawCompassRose();
+    // drawCompassRose();
 }
 
 /**
@@ -256,7 +254,7 @@ function drawMinimapStar(x, y, radius, points, type) {
  * Draws a compass rose on the minimap
  */
 function drawCompassRose() {
-    const x = 30;
+    const x = 50;
     const y = 30;
     const radius = 15;
     

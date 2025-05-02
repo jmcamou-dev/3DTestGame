@@ -26,3 +26,24 @@ let playerVisible = false;
 let peer;
 let connections = [];
 let gameCode;
+let connectedPlayers = []; // List of connected players
+
+// Player information
+let playerName = "Player";
+let otherPlayerInfo = {};
+
+// Game state
+let gamePaused = false;
+let gameStarted = false;
+
+// UI state
+let minimapVisible = false;
+let joysticksVisible = false;
+
+// Networking mode
+let gameMode = 'host';
+let gameCodeToJoin = null;
+
+// Update minimap constants for better zoom
+const MINIMAP_SIZE = 200;
+const MINIMAP_SCALE = .5; // Increased from 2.5 to zoom in more

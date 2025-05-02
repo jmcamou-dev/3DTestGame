@@ -3,9 +3,6 @@
  * Replace the original main.js with this file
  */
 
-// Game pause state
-let gamePaused = false;
-
 /**
  * Main entry point for game initialization
  */
@@ -20,30 +17,32 @@ function init() {
     setupPostProcessing();
     initVisualEffects();
     
-    // Initialize mini-map
+    // Initialize mini-map (initially hidden)
     initMinimap();
     
     // Start power-up system
     startPowerUpSpawning();
     
     // Initialize high score system
-    initHighScores();
+    // initHighScores();
     
-    // Setup controls, joysticks, and networking
+    // Setup controls, joysticks (initially hidden), and networking
     setupControls();
-    setupJoysticks(); // Initialize the virtual joysticks
+    setupJoysticks();
     setupNetworking();
     
-    // Create pause button
-    createPauseButton();
+    // Hide joysticks initially but create the toggle
+    toggleJoysticks(); // This will hide them and create the toggle button
     
-    // Create help button
-    createHelpButton();
+    // Add in-game menu
+    createInGameMenu();
     
     // Start game loop
     animate();
+    
+    // Game is now started
+    gameStarted = true;
 }
-
 /**
  * Main game loop
  */
@@ -70,8 +69,10 @@ function animate() {
         // Update visual effects
         updateVisualEffects();
         
-        // Update minimap
-        updateMinimap();
+        // Only update minimap if visible
+        if (minimapVisible) {
+            updateMinimap();
+        }
         
         // Check for collision with red blob (only if not invincible)
         if (!playerIsInvincible) {
@@ -87,6 +88,262 @@ function animate() {
     
     // Render the scene
     renderer.render(scene, camera);
+}
+/**
+ * Toggles the in-game menu
+ */
+function toggleGameMenu() {
+    // Check if menu already exists
+    let gameMenu = document.getElementById('game-menu');
+    
+    if (gameMenu) {
+        // Remove menu if it exists
+        document.body.removeChild(gameMenu);
+    } else {
+        // Create menu
+        gameMenu = document.createElement('div');
+        gameMenu.id = 'game-menu';
+        gameMenu.style.position = 'absolute';
+        gameMenu.style.top = '50px';
+        gameMenu.style.left = '10px';
+        gameMenu.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        gameMenu.style.padding = '10px';
+        gameMenu.style.borderRadius = '5px';
+        gameMenu.style.zIndex = '1500';
+        gameMenu.style.display = 'flex';
+        gameMenu.style.flexDirection = 'column';
+        gameMenu.style.gap = '5px';
+        
+        // Pause button
+        const pauseButton = document.createElement('button');
+        pauseButton.textContent = 'Pause Game';
+        pauseButton.style.padding = '8px 15px';
+        pauseButton.style.margin = '2px 0';
+        pauseButton.style.borderRadius = '3px';
+        pauseButton.style.border = 'none';
+        pauseButton.style.cursor = 'pointer';
+        pauseButton.style.backgroundColor = '#4CAF50';
+        pauseButton.style.color = 'white';
+        
+        pauseButton.addEventListener('click', () => {
+            togglePause();
+            document.body.removeChild(gameMenu);
+        });
+        
+        // High scores button
+        // const highScoresButton = document.createElement('button');
+        // highScoresButton.textContent = 'High Scores';
+        // highScoresButton.style.padding = '8px 15px';
+        // highScoresButton.style.margin = '2px 0';
+        // highScoresButton.style.borderRadius = '3px';
+        // highScoresButton.style.border = 'none';
+        // highScoresButton.style.cursor = 'pointer';
+        // highScoresButton.style.backgroundColor = '#9C27B0';
+        // highScoresButton.style.color = 'white';
+        
+        // highScoresButton.addEventListener('click', () => {
+        //     showHighScores();
+        //     document.body.removeChild(gameMenu);
+        // });
+        
+        // Show/hide joysticks button
+        const joysticksButton = document.createElement('button');
+        joysticksButton.textContent = joysticksVisible ? 'Hide Joysticks' : 'Show Joysticks';
+        joysticksButton.style.padding = '8px 15px';
+        joysticksButton.style.margin = '2px 0';
+        joysticksButton.style.borderRadius = '3px';
+        joysticksButton.style.border = 'none';
+        joysticksButton.style.cursor = 'pointer';
+        joysticksButton.style.backgroundColor = '#2196F3';
+        joysticksButton.style.color = 'white';
+        
+        joysticksButton.addEventListener('click', () => {
+            toggleJoysticks();
+            document.body.removeChild(gameMenu);
+        });
+        
+        // Help button
+        const helpButton = document.createElement('button');
+        helpButton.textContent = 'Help';
+        helpButton.style.padding = '8px 15px';
+        helpButton.style.margin = '2px 0';
+        helpButton.style.borderRadius = '3px';
+        helpButton.style.border = 'none';
+        helpButton.style.cursor = 'pointer';
+        helpButton.style.backgroundColor = '#FF9800';
+        helpButton.style.color = 'white';
+        
+        helpButton.addEventListener('click', () => {
+            showHelp();
+            document.body.removeChild(gameMenu);
+        });
+        
+        // Show/hide minimap button
+        const minimapButton = document.createElement('button');
+        minimapButton.textContent = minimapVisible ? 'Hide Map' : 'Show Map';
+        minimapButton.style.padding = '8px 15px';
+        minimapButton.style.margin = '2px 0';
+        minimapButton.style.borderRadius = '3px';
+        minimapButton.style.border = 'none';
+        minimapButton.style.cursor = 'pointer';
+        minimapButton.style.backgroundColor = '#607D8B';
+        minimapButton.style.color = 'white';
+        
+        minimapButton.addEventListener('click', () => {
+            minimapVisible = !minimapVisible;
+            minimapCanvas.style.display = minimapVisible ? 'block' : 'none';
+            document.getElementById('minimap-toggle').textContent = minimapVisible ? 'Hide Map' : 'Show Map';
+            document.body.removeChild(gameMenu);
+        });
+        
+        // Exit game button
+        const exitButton = document.createElement('button');
+        exitButton.textContent = 'Exit Game';
+        exitButton.style.padding = '8px 15px';
+        exitButton.style.margin = '2px 0';
+        exitButton.style.borderRadius = '3px';
+        exitButton.style.border = 'none';
+        exitButton.style.cursor = 'pointer';
+        exitButton.style.backgroundColor = '#f44336';
+        exitButton.style.color = 'white';
+        
+        exitButton.addEventListener('click', () => {
+            confirmExitGame();
+            document.body.removeChild(gameMenu);
+        });
+        
+        // Add buttons to menu
+        gameMenu.appendChild(pauseButton);
+        // gameMenu.appendChild(highScoresButton);
+        gameMenu.appendChild(joysticksButton);
+        gameMenu.appendChild(minimapButton);
+        gameMenu.appendChild(helpButton);
+        gameMenu.appendChild(exitButton);
+        
+        // Add menu to document
+        document.body.appendChild(gameMenu);
+    }
+}
+/**
+ * Confirms if the player wants to exit the game
+ */
+function confirmExitGame() {
+    // Create confirmation dialog
+    const dialog = document.createElement('div');
+    dialog.style.position = 'fixed';
+    dialog.style.top = '0';
+    dialog.style.left = '0';
+    dialog.style.width = '100%';
+    dialog.style.height = '100%';
+    dialog.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    dialog.style.display = 'flex';
+    dialog.style.justifyContent = 'center';
+    dialog.style.alignItems = 'center';
+    dialog.style.zIndex = '3000';
+    
+    // Create dialog content
+    const content = document.createElement('div');
+    content.style.backgroundColor = '#333';
+    content.style.padding = '20px';
+    content.style.borderRadius = '10px';
+    content.style.maxWidth = '400px';
+    content.style.textAlign = 'center';
+    
+    // Add message
+    const message = document.createElement('p');
+    message.textContent = 'Are you sure you want to exit the game?';
+    message.style.color = 'white';
+    message.style.fontFamily = 'Arial, sans-serif';
+    message.style.fontSize = '18px';
+    message.style.marginBottom = '20px';
+    
+    // Add score info
+    const scoreInfo = document.createElement('p');
+    scoreInfo.textContent = `Your current score: ${score}`;
+    scoreInfo.style.color = '#4CAF50';
+    scoreInfo.style.fontFamily = 'Arial, sans-serif';
+    scoreInfo.style.fontSize = '16px';
+    scoreInfo.style.marginBottom = '30px';
+    
+    // Create buttons container
+    const buttons = document.createElement('div');
+    buttons.style.display = 'flex';
+    buttons.style.justifyContent = 'space-around';
+    
+    // Yes button
+    const yesButton = document.createElement('button');
+    yesButton.textContent = 'Yes, Exit';
+    yesButton.style.padding = '10px 20px';
+    yesButton.style.backgroundColor = '#f44336';
+    yesButton.style.color = 'white';
+    yesButton.style.border = 'none';
+    yesButton.style.borderRadius = '5px';
+    yesButton.style.cursor = 'pointer';
+    
+    yesButton.addEventListener('click', () => {
+        // // Check for high score before exiting
+        // if (isHighScore()) {
+        //     document.body.removeChild(dialog);
+        //     promptForHighScore();
+        //     setTimeout(() => {
+        //         // Return to main menu
+        //         location.reload();
+        //     }, 3000);
+        // } else {
+            // Just exit to main menu
+            location.reload();
+        // }
+    });
+    
+    // No button
+    const noButton = document.createElement('button');
+    noButton.textContent = 'No, Continue';
+    noButton.style.padding = '10px 20px';
+    noButton.style.backgroundColor = '#4CAF50';
+    noButton.style.color = 'white';
+    noButton.style.border = 'none';
+    noButton.style.borderRadius = '5px';
+    noButton.style.cursor = 'pointer';
+    
+    noButton.addEventListener('click', () => {
+        document.body.removeChild(dialog);
+    });
+    
+    // Assemble dialog
+    buttons.appendChild(noButton);
+    buttons.appendChild(yesButton);
+    
+    content.appendChild(message);
+    content.appendChild(scoreInfo);
+    content.appendChild(buttons);
+    
+    dialog.appendChild(content);
+    document.body.appendChild(dialog);
+}
+
+/**
+ * Creates an in-game menu that includes buttons for high scores and joystick toggle
+ */
+function createInGameMenu() {
+    // Create menu button
+    const menuButton = document.createElement('div');
+    menuButton.id = 'menu-button';
+    menuButton.textContent = 'Menu';
+    menuButton.style.position = 'absolute';
+    menuButton.style.top = '10px';
+    menuButton.style.left = '100px';
+    menuButton.style.background = 'rgba(0,0,0,0.5)';
+    menuButton.style.color = 'white';
+    menuButton.style.padding = '10px';
+    menuButton.style.borderRadius = '5px';
+    menuButton.style.fontFamily = 'Arial, sans-serif';
+    menuButton.style.cursor = 'pointer';
+    menuButton.style.zIndex = '1000';
+    
+    // Add event listener
+    menuButton.addEventListener('click', toggleGameMenu);
+    
+    document.body.appendChild(menuButton);
 }
 
 /**
@@ -137,9 +394,8 @@ function createPauseButton() {
         }
     });
 }
-
 /**
- * Shows the pause screen
+ * Shows the pause screen with menu options
  */
 function showPauseScreen() {
     // Create pause overlay if it doesn't exist
@@ -167,6 +423,13 @@ function showPauseScreen() {
         pauseText.style.fontFamily = 'Arial, sans-serif';
         pauseText.style.marginBottom = '20px';
         
+        // Create button container for better layout
+        const buttonContainer = document.createElement('div');
+        buttonContainer.style.display = 'flex';
+        buttonContainer.style.flexDirection = 'column';
+        buttonContainer.style.gap = '10px';
+        buttonContainer.style.minWidth = '200px';
+        
         // Add resume button
         const resumeButton = document.createElement('button');
         resumeButton.textContent = 'Resume Game';
@@ -177,23 +440,55 @@ function showPauseScreen() {
         resumeButton.style.border = 'none';
         resumeButton.style.borderRadius = '5px';
         resumeButton.style.cursor = 'pointer';
-        resumeButton.style.marginBottom = '15px';
         
         resumeButton.addEventListener('click', togglePause);
         
-        // Add high scores button
-        const highScoresButton = document.createElement('button');
-        highScoresButton.textContent = 'High Scores';
-        highScoresButton.style.padding = '10px 20px';
-        highScoresButton.style.fontSize = '16px';
-        highScoresButton.style.backgroundColor = '#2196F3';
-        highScoresButton.style.color = 'white';
-        highScoresButton.style.border = 'none';
-        highScoresButton.style.borderRadius = '5px';
-        highScoresButton.style.cursor = 'pointer';
-        highScoresButton.style.marginBottom = '15px';
+        // // Add high scores button
+        // const highScoresButton = document.createElement('button');
+        // highScoresButton.textContent = 'High Scores';
+        // highScoresButton.style.padding = '10px 20px';
+        // highScoresButton.style.fontSize = '16px';
+        // highScoresButton.style.backgroundColor = '#9C27B0';
+        // highScoresButton.style.color = 'white';
+        // highScoresButton.style.border = 'none';
+        // highScoresButton.style.borderRadius = '5px';
+        // highScoresButton.style.cursor = 'pointer';
         
-        highScoresButton.addEventListener('click', showHighScores);
+        // highScoresButton.addEventListener('click', showHighScores);
+        
+        // Add toggle joysticks button
+        const joysticksButton = document.createElement('button');
+        joysticksButton.textContent = joysticksVisible ? 'Hide Joysticks' : 'Show Joysticks';
+        joysticksButton.style.padding = '10px 20px';
+        joysticksButton.style.fontSize = '16px';
+        joysticksButton.style.backgroundColor = '#2196F3';
+        joysticksButton.style.color = 'white';
+        joysticksButton.style.border = 'none';
+        joysticksButton.style.borderRadius = '5px';
+        joysticksButton.style.cursor = 'pointer';
+        
+        joysticksButton.addEventListener('click', () => {
+            toggleJoysticks();
+            joysticksButton.textContent = joysticksVisible ? 'Hide Joysticks' : 'Show Joysticks';
+        });
+        
+        // Add toggle minimap button
+        const minimapButton = document.createElement('button');
+        minimapButton.textContent = minimapVisible ? 'Hide Map' : 'Show Map';
+        minimapButton.style.padding = '10px 20px';
+        minimapButton.style.fontSize = '16px';
+        minimapButton.style.backgroundColor = '#607D8B';
+        minimapButton.style.color = 'white';
+        minimapButton.style.border = 'none';
+        minimapButton.style.borderRadius = '5px';
+        minimapButton.style.cursor = 'pointer';
+        
+        minimapButton.addEventListener('click', () => {
+            minimapVisible = !minimapVisible;
+            minimapCanvas.style.display = minimapVisible ? 'block' : 'none';
+            document.getElementById('minimap-toggle').textContent = minimapVisible ? 'Hide Map' : 'Show Map';
+            minimapButton.textContent = minimapVisible ? 'Hide Map' : 'Show Map';
+        });
         
         // Add help button
         const helpButton = document.createElement('button');
@@ -208,11 +503,33 @@ function showPauseScreen() {
         
         helpButton.addEventListener('click', showHelp);
         
-        // Add all elements to the overlay
+        // Add exit button
+        const exitButton = document.createElement('button');
+        exitButton.textContent = 'Exit Game';
+        exitButton.style.padding = '10px 20px';
+        exitButton.style.fontSize = '16px';
+        exitButton.style.backgroundColor = '#f44336';
+        exitButton.style.color = 'white';
+        exitButton.style.border = 'none';
+        exitButton.style.borderRadius = '5px';
+        exitButton.style.cursor = 'pointer';
+        
+        exitButton.addEventListener('click', () => {
+            togglePause(); // Unpause first
+            confirmExitGame();
+        });
+        
+        // Add all buttons to container
+        buttonContainer.appendChild(resumeButton);
+        // buttonContainer.appendChild(highScoresButton);
+        buttonContainer.appendChild(joysticksButton);
+        buttonContainer.appendChild(minimapButton);
+        buttonContainer.appendChild(helpButton);
+        buttonContainer.appendChild(exitButton);
+        
+        // Add elements to overlay
         pauseOverlay.appendChild(pauseText);
-        pauseOverlay.appendChild(resumeButton);
-        pauseOverlay.appendChild(highScoresButton);
-        pauseOverlay.appendChild(helpButton);
+        pauseOverlay.appendChild(buttonContainer);
         
         // Add to document
         document.body.appendChild(pauseOverlay);
@@ -336,10 +653,10 @@ function showHelp() {
  * Called when player dies (caught by red blob) to check high score
  */
 function handlePlayerDeath() {
-    // Check for high score
-    if (isHighScore()) {
-        promptForHighScore();
-    }
+    // // Check for high score
+    // if (isHighScore()) {
+    //     promptForHighScore();
+    // }
 }
 
 // Override respawn function to check for high score
@@ -377,5 +694,8 @@ checkCollectibleCollision = function(collectible, index) {
     return wasCollected;
 };
 
-// Start the game when page loads
-window.addEventListener('load', init);
+// Initialize the main menu when page loads
+window.addEventListener('load', initMainMenu);
+
+// Game starts from menu, not automatically
+// The original init call has been moved to the main menu options
