@@ -179,12 +179,14 @@ function initMainMenu() {
     
     // Add event listeners
     hostButton.addEventListener('click', () => {
+        playButtonSound(); // Add this
         playerName = nameInput.value.trim() || "Player";
         startHostGame();
         document.body.removeChild(menuOverlay);
     });
     
     joinButton.addEventListener('click', () => {
+        playButtonSound(); // Add this
         codeContainer.style.display = 'block';
         joinButton.style.display = 'none';
         hostButton.style.display = 'none';

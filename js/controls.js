@@ -2,18 +2,116 @@
  * Controls module - Handles player movement and camera following player orientation
  */
 
-// Player movement variables
-let moveForward = false;
-let moveBackward = false;
-let moveLeft = false;
-let moveRight = false;
-let rotateLeft = false;
-let rotateRight = false;
 
-// Movement constants
-const MOVEMENT_SPEED = 0.1;
-const ROTATION_SPEED = 0.03;
-
+function setupMouseControls() {
+    // Track if the mouse button is pressed
+    let isMouseDown = false;
+    
+    // Last mouse position
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+    
+    // Mouse sensitivity
+    const MOUSE_SENSITIVITY = 0.003;
+    
+    // Mouse down event
+    document.addEventListener('mousedown', (e) => {
+        if (e.button === 0) { // Left mouse button
+            isMouseDown = true;
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+        }
+    });
+    
+    // Mouse up event
+    document.addEventListener('mouseup', (e) => {
+        if (e.button === 0) { // Left mouse button
+            isMouseDown = false;
+        }
+    });
+    
+    // Mouse move event
+    document.addEventListener('mousemove', (e) => {
+        if (isMouseDown && mouseControlEnabled) {
+            // Calculate mouse movement
+            const deltaX = e.clientX - lastMouseX;
+            const deltaY = e.clientY - lastMouseY;
+            
+            // Update camera rotation
+            cameraYaw -= deltaX * MOUSE_SENSITIVITY;
+            cameraPitch -= deltaY * MOUSE_SENSITIVITY;
+            
+            // Clamp pitch to prevent flipping
+            cameraPitch = Math.max(MIN_PITCH, Math.min(MAX_PITCH, cameraPitch));
+            
+            // Update last position
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+        }
+    });
+    
+    // Add key to toggle mouse control
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'm' || e.key === 'M') {
+            mouseControlEnabled = !mouseControlEnabled;
+            // Show toggle notification
+            showNotification(`Mouse control ${mouseControlEnabled ? 'enabled' : 'disabled'}`);
+        }
+    });
+    
+    // Lock pointer for better mouse control
+    const canvas = renderer.domElement;
+    canvas.addEventListener('click', () => {
+        if (mouseControlEnabled && document.pointerLockElement !== canvas) {
+            canvas.requestPointerLock();
+        }
+    });
+    
+    // Handle pointer lock change
+    document.addEventListener('pointerlockchange', () => {
+        if (document.pointerLockElement === canvas) {
+            // Pointer is locked, set up mousemove differently
+            document.addEventListener('mousemove', handleMouseMoveLocked);
+            document.removeEventListener('mousemove', handleMouseMoveUnlocked);
+        } else {
+            // Pointer is unlocked
+            document.removeEventListener('mousemove', handleMouseMoveLocked);
+            document.addEventListener('mousemove', handleMouseMoveUnlocked);
+        }
+    });
+    
+    // Handle mouse movement when pointer is locked
+    function handleMouseMoveLocked(e) {
+        if (mouseControlEnabled) {
+            // Use movement directly since pointer is locked
+            cameraYaw -= e.movementX * MOUSE_SENSITIVITY;
+            cameraPitch -= e.movementY * MOUSE_SENSITIVITY;
+            
+            // Clamp pitch to prevent flipping
+            cameraPitch = Math.max(MIN_PITCH, Math.min(MAX_PITCH, cameraPitch));
+        }
+    }
+    
+    // Handle mouse movement when pointer is not locked
+    function handleMouseMoveUnlocked(e) {
+        if (isMouseDown && mouseControlEnabled) {
+            // Calculate mouse movement
+            const deltaX = e.clientX - lastMouseX;
+            const deltaY = e.clientY - lastMouseY;
+            
+            // Update camera rotation
+            cameraYaw -= deltaX * MOUSE_SENSITIVITY;
+            cameraPitch -= deltaY * MOUSE_SENSITIVITY;
+            
+            // Clamp pitch to prevent flipping
+            cameraPitch = Math.max(MIN_PITCH, Math.min(MAX_PITCH, cameraPitch));
+            
+            // Update last position
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+        }
+    }
+}
 /**
  * Sets up all control systems
  */
@@ -21,6 +119,9 @@ function setupControls() {
     // Setup keyboard controls for desktop
     setupKeyboardControls();
     
+    // Setup mouse controls
+    setupMouseControls();
+
     // Setup window resize handler
     setupWindowResize();
 }
@@ -53,6 +154,12 @@ function setupKeyboardControls() {
             case 'e':
                 rotateRight = true;
                 break;
+            case 'Shift':
+                if (!minimapVisible){
+                    minimapVisible = !minimapVisible;
+                    minimapCanvas.style.display = minimapVisible ? 'block' : 'none';
+                }
+                break;
         }
     });
     
@@ -80,6 +187,12 @@ function setupKeyboardControls() {
             case 'e':
                 rotateRight = false;
                 break;
+            case 'Shift':
+                if (minimapVisible){
+                    minimapVisible = !minimapVisible;
+                    minimapCanvas.style.display = minimapVisible ? 'block' : 'none';
+                }
+                break;
         }
     });
 }
@@ -88,7 +201,7 @@ function setupKeyboardControls() {
  * Updates player position and rotation based on controls
  */
 function updatePlayerMovement() {
-    // Handle rotation
+    // For rotation control, we still use the original rotation controls
     if (rotateLeft) {
         playerSphere.rotation.y += ROTATION_SPEED;
     }
@@ -96,29 +209,31 @@ function updatePlayerMovement() {
         playerSphere.rotation.y -= ROTATION_SPEED;
     }
     
-    // Get current player direction based on its rotation
-    const playerDirection = new THREE.Vector3(0, 0, -1);
-    playerDirection.applyAxisAngle(new THREE.Vector3(0, 1, 0), playerSphere.rotation.y);
+    // Get camera direction (ignoring pitch)
+    const cameraDirection = new THREE.Vector3(0, 0, -1);
+    cameraDirection.applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraYaw);
+    cameraDirection.y = 0; // Ignore vertical component
+    cameraDirection.normalize();
     
-    // Get right vector (perpendicular to forward direction)
+    // Get right vector (perpendicular to camera direction)
     const rightVector = new THREE.Vector3(1, 0, 0);
-    rightVector.applyAxisAngle(new THREE.Vector3(0, 1, 0), playerSphere.rotation.y);
+    rightVector.applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraYaw);
     
     // Create movement vector
     const moveVector = new THREE.Vector3(0, 0, 0);
     
-    // Add movement components
+    // Add movement components based on camera direction
     if (moveForward) {
-        moveVector.add(playerDirection.clone().multiplyScalar(MOVEMENT_SPEED));
+        moveVector.add(cameraDirection.clone().multiplyScalar(-MOVEMENT_SPEED));
     }
     if (moveBackward) {
-        moveVector.add(playerDirection.clone().multiplyScalar(-MOVEMENT_SPEED));
+        moveVector.add(cameraDirection.clone().multiplyScalar(MOVEMENT_SPEED));
     }
     if (moveRight) {
-        moveVector.add(rightVector.clone().multiplyScalar(MOVEMENT_SPEED));
+        moveVector.add(rightVector.clone().multiplyScalar(-MOVEMENT_SPEED));
     }
     if (moveLeft) {
-        moveVector.add(rightVector.clone().multiplyScalar(-MOVEMENT_SPEED));
+        moveVector.add(rightVector.clone().multiplyScalar(MOVEMENT_SPEED));
     }
     
     // Normalize movement if moving diagonally
@@ -132,6 +247,19 @@ function updatePlayerMovement() {
         playerSphere.position.x += moveVector.x / steps;
         playerSphere.position.z += moveVector.z / steps;
         checkCollisions();
+    }
+    
+    // Make player face the movement direction if moving
+    if (moveVector.length() > 0) {
+        const targetRotation = Math.atan2(moveVector.x, moveVector.z);
+        // Smoothly interpolate to target rotation
+        const rotationDiff = targetRotation - playerSphere.rotation.y;
+        
+        // Handle angle wrapping
+        let shortestRotation = ((rotationDiff + Math.PI) % (Math.PI * 2)) - Math.PI;
+        
+        // Apply rotation gradually
+        playerSphere.rotation.y += shortestRotation * 0.1;
     }
     
     // Keep player within bounds
@@ -157,21 +285,24 @@ function updateCameraToFollowPlayer() {
     // Camera height (higher to see more of the scene)
     const cameraHeight = 5;
     
-    // Calculate position behind player
+    // Use the camera's yaw (horizontal rotation) instead of player rotation
     const offsetDirection = new THREE.Vector3(0, 0, 1); // Behind player
-    offsetDirection.applyAxisAngle(new THREE.Vector3(0, 1, 0), playerSphere.rotation.y);
+    offsetDirection.applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraYaw);
     
     // Position camera behind player
-    camera.position.x = playerSphere.position.x + offsetDirection.x * cameraOffset;
-    camera.position.y = playerSphere.position.y + cameraHeight;
-    camera.position.z = playerSphere.position.z + offsetDirection.z * cameraOffset;
+    camera.position.x = playerSphere.position.x - offsetDirection.x * cameraOffset;
+    camera.position.z = playerSphere.position.z - offsetDirection.z * cameraOffset;
     
-    // Look exactly at the player
-    camera.lookAt(
+    // Apply pitch (vertical rotation)
+    camera.position.y = playerSphere.position.y + cameraHeight - offsetDirection.y * cameraOffset;
+    
+    // Look at player with pitch
+    const lookAtPoint = new THREE.Vector3(
         playerSphere.position.x,
-        playerSphere.position.y + 0.5, // Slightly above player's center
+        playerSphere.position.y + 0.5 + cameraPitch * 3, // Apply pitch to look point
         playerSphere.position.z
     );
+    camera.lookAt(lookAtPoint);
 }
 
 /**
@@ -188,4 +319,27 @@ function setupWindowResize() {
             updateJoystickPositions();
         }
     }, false);
+}
+
+function showNotification(message) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.textContent = message;
+    notification.style.position = 'absolute';
+    notification.style.bottom = '100px';
+    notification.style.left = '50%';
+    notification.style.transform = 'translateX(-50%)';
+    notification.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    notification.style.color = 'white';
+    notification.style.padding = '10px 20px';
+    notification.style.borderRadius = '5px';
+    notification.style.fontFamily = 'Arial, sans-serif';
+    notification.style.zIndex = '1000';
+    
+    document.body.appendChild(notification);
+    
+    // Remove after 2 seconds
+    setTimeout(() => {
+        document.body.removeChild(notification);
+    }, 2000);
 }

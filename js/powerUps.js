@@ -156,18 +156,25 @@ function checkPowerUpCollisions() {
         const distance = playerSphere.position.distanceTo(powerUp.position);
         
         if (distance < 2) {
-            // Collect power-up
-            activatePowerUp(powerUp.userData.powerUpType);
+            // Get power-up type and position before removing it
+            const powerUpType = powerUp.userData.powerUpType;
+            const powerUpPosition = powerUp.position.clone();
+            
+            // Get power-up color from config instead of from material
+            const powerUpColor = POWER_UP_TYPES[powerUpType].color;
+            
+            // Activate power-up
+            activatePowerUp(powerUpType);
             
             // Remove power-up
             scene.remove(powerUp);
             powerUpObjects.splice(i, 1);
             
             // Create UI notification
-            showPowerUpNotification(powerUp.userData.powerUpType);
+            showPowerUpNotification(powerUpType);
             
-            // Create particle effect at collection point
-            createPowerUpCollectEffect(powerUp.position.clone(), powerUp.material.color);
+            // Create particle effect using position and color from config
+            createPowerUpCollectEffect(powerUpPosition, powerUpColor);
         }
     }
 }
@@ -218,8 +225,10 @@ function activatePowerUp(type) {
     // Award bonus points
     score += 25;
     document.getElementById('score').textContent = score;
+    
+    // Play power-up sound - add this line
+    playPowerUpSound(playerSphere.position, type);
 }
-
 /**
  * Deactivates a power-up effect
  * @param {string} type - Power-up type from POWER_UP_TYPES

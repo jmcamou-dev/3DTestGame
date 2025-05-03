@@ -47,3 +47,23 @@ let gameCodeToJoin = null;
 // Update minimap constants for better zoom
 const MINIMAP_SIZE = 200;
 const MINIMAP_SCALE = .5; // Increased from 2.5 to zoom in more
+
+
+// Player movement variables
+let moveForward = false;
+let moveBackward = false;
+let moveLeft = false;
+let moveRight = false;
+let rotateLeft = false;
+let rotateRight = false;
+
+// Movement constants
+const MOVEMENT_SPEED = 0.1;
+const ROTATION_SPEED = 0.03;
+
+let cameraYaw = 0; // Horizontal camera rotation
+let cameraPitch = 0; // Vertical camera rotation
+let mouseControlEnabled = true; // Flag to enable/disable mouse control
+
+const MAX_PITCH = Math.PI / 3; // Maximum camera pitch (up/down)
+const MIN_PITCH = -Math.PI / 3; // Minimum camera pitch (up/down)

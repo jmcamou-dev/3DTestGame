@@ -3,6 +3,7 @@
  */
 function updateRedBlob() {
     // Check if player is visible
+    const wasVisible = playerVisible;
     playerVisible = isPlayerVisibleToRedBlob();
     
     // Get direction to player
@@ -23,6 +24,14 @@ function updateRedBlob() {
     
     // Check for collisions with walls
     checkRedBlobWallCollisions();
+    
+    // Update enemy sound based on visibility change - add this section
+    if (playerVisible !== wasVisible) {
+        if (redBlob.userData.sound) {
+            redBlob.userData.sound.stop();
+        }
+        playEnemySound(redBlob.position, playerVisible);
+    }
 }
 
 /**

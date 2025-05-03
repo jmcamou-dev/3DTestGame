@@ -271,26 +271,72 @@ function updateOtherPlayerPosition(conn, data) {
     otherPlayers[conn.peer].position.x = data.x;
     otherPlayers[conn.peer].position.y = data.y;
     otherPlayers[conn.peer].position.z = data.z;
+    
+    // Update rotation
+    if (data.rotation !== undefined) {
+        otherPlayers[conn.peer].rotation.y = data.rotation;
+    }
 }
-
 /**
  * Creates a visual representation of another player
  * @param {PeerJS.DataConnection} conn - The connection
  * @param {string} color - The player's color
  */
 function createOtherPlayer(conn, color) {
-    const otherPlayerSphere = new THREE.Mesh(
-        new THREE.SphereGeometry(1, 32, 32),
-        new THREE.MeshStandardMaterial({ 
-            color: color,
-            roughness: 0.4,
-            metalness: 0.3
-        })
-    );
-    otherPlayerSphere.castShadow = true;
-    scene.add(otherPlayerSphere);
+    // Create a player group
+    const otherPlayerGroup = new THREE.Group();
     
-    otherPlayers[conn.peer] = otherPlayerSphere;
+    // Main sphere
+    const sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
+    const sphereMaterial = new THREE.MeshStandardMaterial({ 
+        color: color,
+        roughness: 0.4,
+        metalness: 0.3
+    });
+    const mainSphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    otherPlayerGroup.add(mainSphere);
+    
+    // Add direction indicator (arrow or eyes)
+    // Eyes (facing forward in the -Z direction)
+    const eyeGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+    const eyeMaterial = new THREE.MeshStandardMaterial({
+        color: 0x000000, // Black eyes
+        roughness: 0.1,
+        metalness: 0.2
+    });
+    
+    // Left eye - positioned on the sphere's surface facing forward
+    const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    leftEye.position.set(-0.4, 0.4, -0.9); // Negative Z is forward
+    otherPlayerGroup.add(leftEye);
+    
+    // Right eye - positioned on the sphere's surface facing forward
+    const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    rightEye.position.set(0.4, 0.4, -0.9); // Negative Z is forward
+    otherPlayerGroup.add(rightEye);
+    
+    // Mouth (slightly curved line facing forward)
+    const mouthGeometry = new THREE.TorusGeometry(0.3, 0.05, 8, 12, Math.PI * 0.5);
+    const mouthMaterial = new THREE.MeshStandardMaterial({
+        color: 0x000000, // Black mouth
+        roughness: 0.2,
+        metalness: 0.1
+    });
+    const mouth = new THREE.Mesh(mouthGeometry, mouthMaterial);
+    mouth.position.set(0, -0.3, -0.9); // Below the eyes
+    mouth.rotation.x = Math.PI / 2; // Rotate to face forward
+    mouth.rotation.y = Math.PI; // Flip to smile
+    otherPlayerGroup.add(mouth);
+    
+    // Position the group
+    otherPlayerGroup.position.y = 1;
+    otherPlayerGroup.castShadow = true;
+    
+    // Add to scene
+    scene.add(otherPlayerGroup);
+    
+    // Store reference
+    otherPlayers[conn.peer] = otherPlayerGroup;
 }
 
 /**
@@ -464,7 +510,7 @@ function sendPositionUpdate() {
                 x: playerSphere.position.x,
                 y: playerSphere.position.y,
                 z: playerSphere.position.z,
-                rotation: playerSphere.rotation.y,
+                rotation: playerSphere.rotation.y, // Send rotation data
                 color: playerColor,
                 name: playerName
             });

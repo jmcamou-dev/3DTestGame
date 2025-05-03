@@ -18,6 +18,7 @@ const scripts = [
     { path: 'js/minimap.js', loaded: false },
     { path: 'js/powerUps.js', loaded: false },
     { path: 'js/highScores.js', loaded: false },
+    { path: 'js/soundSystem.js', loaded: false },
     
     // Game mechanics
     { path: 'js/collisions.js', loaded: false },

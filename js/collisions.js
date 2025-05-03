@@ -36,18 +36,94 @@ function checkCollectibleCollision(collectible, index) {
         score += 10;
         document.getElementById('score').textContent = score;
         
+        // Play collect sound - add this line
+        playCollectSound(collectible.position.clone());
+        
         // Remove collectible
         scene.remove(collectible);
         obstacles.splice(index, 1);
         
-        // Create new collectible
-        createNewCollectible();
+        // Check if all collectibles are gone - add this section
+        const remainingCollectibles = obstacles.filter(obj => obj.userData.isCollectible);
+        if (remainingCollectibles.length === 0) {
+            // Player has won the game!
+            showVictoryScreen();
+            // Play victory sound
+            playVictorySound();
+        }
+        
+        // Remove this line to prevent new collectibles from appearing
+        // createNewCollectible();
         
         return true;
     }
     
     return false;
 }
+
+/**
+ * Shows victory screen when all collectibles are collected
+ */
+function showVictoryScreen() {
+    // Create victory overlay
+    const victoryOverlay = document.createElement('div');
+    victoryOverlay.id = 'victory-overlay';
+    victoryOverlay.style.position = 'fixed';
+    victoryOverlay.style.top = '0';
+    victoryOverlay.style.left = '0';
+    victoryOverlay.style.width = '100%';
+    victoryOverlay.style.height = '100%';
+    victoryOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    victoryOverlay.style.display = 'flex';
+    victoryOverlay.style.flexDirection = 'column';
+    victoryOverlay.style.justifyContent = 'center';
+    victoryOverlay.style.alignItems = 'center';
+    victoryOverlay.style.zIndex = '3000';
+    
+    // Victory message
+    const victoryMessage = document.createElement('h1');
+    victoryMessage.textContent = 'Victory!';
+    victoryMessage.style.color = '#ffff00';
+    victoryMessage.style.fontSize = '48px';
+    victoryMessage.style.marginBottom = '20px';
+    victoryMessage.style.textShadow = '0 0 10px #ffff00';
+    
+    // Score display
+    const scoreDisplay = document.createElement('div');
+    scoreDisplay.textContent = `Final Score: ${score}`;
+    scoreDisplay.style.color = 'white';
+    scoreDisplay.style.fontSize = '24px';
+    scoreDisplay.style.marginBottom = '30px';
+    
+    // Play again button
+    const playAgainBtn = document.createElement('button');
+    playAgainBtn.textContent = 'Play Again';
+    playAgainBtn.style.padding = '15px 30px';
+    playAgainBtn.style.backgroundColor = '#4CAF50';
+    playAgainBtn.style.color = 'white';
+    playAgainBtn.style.border = 'none';
+    playAgainBtn.style.borderRadius = '5px';
+    playAgainBtn.style.fontSize = '18px';
+    playAgainBtn.style.cursor = 'pointer';
+    playAgainBtn.style.marginBottom = '15px';
+    
+    playAgainBtn.addEventListener('click', () => {
+        playButtonSound(); // Add sound
+        location.reload();
+    });
+    
+    // Add elements to overlay
+    victoryOverlay.appendChild(victoryMessage);
+    victoryOverlay.appendChild(scoreDisplay);
+    victoryOverlay.appendChild(playAgainBtn);
+    
+    // Add to document
+    document.body.appendChild(victoryOverlay);
+    
+    // Play victory sound
+    playVictorySound();
+}
+
 
 /**
  * Checks for collision with a wall
@@ -107,6 +183,19 @@ function resolveWallCollisions(wallCollisions) {
     
     // Apply combined resolution vector
     playerSphere.position.add(resolutionVector);
+    
+    // Play wall hit sound if collision is significant - add this section
+    if (resolutionVector.length() > 0.1) {
+        // Calculate collision force based on resolution length
+        const force = Math.min(resolutionVector.length() * 2, 1);
+        
+        // Position is halfway between player and wall
+        const position = playerSphere.position.clone();
+        position.sub(resolutionVector.clone().multiplyScalar(0.5));
+        
+        // Play sound
+        playWallHitSound(position, force);
+    }
 }
 
 /**
@@ -119,6 +208,10 @@ function checkRedBlobCollision() {
     if (distanceToBlob < 2.5 && !playerRespawning) {
         // Player caught by Red Blob!
         startRespawnCountdown();
+        
+        // Play hurt sound - add this line
+        playHurtSound();
+        
         return true;
     }
     
@@ -184,4 +277,7 @@ function respawnPlayer() {
     // Move red blob away
     redBlob.position.x = -playerSphere.position.x + (Math.random() - 0.5) * 20;
     redBlob.position.z = -playerSphere.position.z + (Math.random() - 0.5) * 20;
+    
+    // Play spawn sound - add this line
+    playSpawnSound();
 }

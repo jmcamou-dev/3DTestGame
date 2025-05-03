@@ -13,6 +13,9 @@ function init() {
     createObstacles();
     createRedBlob();
     
+    // Initialize sound system - add this line
+    initSoundSystem();
+    
     // Setup visual effects
     setupPostProcessing();
     initVisualEffects();
@@ -23,19 +26,19 @@ function init() {
     // Start power-up system
     startPowerUpSpawning();
     
-    // Initialize high score system
-    // initHighScores();
-    
     // Setup controls, joysticks (initially hidden), and networking
     setupControls();
     setupJoysticks();
     setupNetworking();
     
     // Hide joysticks initially but create the toggle
-    toggleJoysticks(); // This will hide them and create the toggle button
+    toggleJoysticks();
     
     // Add in-game menu
     createInGameMenu();
+    
+    // Start background music - add this line
+    playBackgroundMusic();
     
     // Start game loop
     animate();
@@ -74,6 +77,12 @@ function animate() {
             updateMinimap();
         }
         
+        // Play footstep sounds - add this line
+        playFootstepSounds();
+        
+        // Update spatial sounds - add this line
+        updateSpatialSounds();
+        
         // Check for collision with red blob (only if not invincible)
         if (!playerIsInvincible) {
             checkRedBlobCollision();
@@ -89,6 +98,7 @@ function animate() {
     // Render the scene
     renderer.render(scene, camera);
 }
+
 /**
  * Toggles the in-game menu
  */

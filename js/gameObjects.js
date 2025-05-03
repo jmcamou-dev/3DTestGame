@@ -64,12 +64,12 @@ function createPlayer() {
     
     // Left eye - positioned on the sphere's surface facing forward
     const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-    leftEye.position.set(-0.4, 0.4, -0.9); // Negative Z is forward
+    leftEye.position.set(-0.4, 0.4, 0.9); // Negative Z is forward
     playerGroup.add(leftEye);
     
     // Right eye - positioned on the sphere's surface facing forward
     const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-    rightEye.position.set(0.4, 0.4, -0.9); // Negative Z is forward
+    rightEye.position.set(0.4, 0.4, 0.9); // Negative Z is forward
     playerGroup.add(rightEye);
     
     // Mouth (slightly curved line facing forward)
@@ -80,7 +80,7 @@ function createPlayer() {
         metalness: 0.1
     });
     const mouth = new THREE.Mesh(mouthGeometry, mouthMaterial);
-    mouth.position.set(0, -0.3, -0.9); // Below the eyes
+    mouth.position.set(0, -0.3, 0.9); // Below the eyes
     mouth.rotation.x = Math.PI / 2; // Rotate to face forward
     mouth.rotation.y = Math.PI; // Flip to smile
     playerGroup.add(mouth);
