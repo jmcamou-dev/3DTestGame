@@ -192,8 +192,8 @@ function updateMinimap() {
     minimapContext.fill();
     
     // Draw player direction indicator
-    const dirX = centerX - Math.sin(playerSphere.rotation.y) * 8;
-    const dirZ = centerY - Math.cos(playerSphere.rotation.y) * 8;
+    const dirX = centerX + Math.sin(playerSphere.rotation.y) * 8;
+    const dirZ = centerY + Math.cos(playerSphere.rotation.y) * 8;
     
     minimapContext.beginPath();
     minimapContext.moveTo(centerX, centerY);

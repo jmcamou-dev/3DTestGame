@@ -154,7 +154,7 @@ function setupKeyboardControls() {
             case 'e':
                 rotateRight = true;
                 break;
-            case 'Shift':
+            case 'Control':
                 if (!minimapVisible){
                     minimapVisible = !minimapVisible;
                     minimapCanvas.style.display = minimapVisible ? 'block' : 'none';
@@ -187,7 +187,7 @@ function setupKeyboardControls() {
             case 'e':
                 rotateRight = false;
                 break;
-            case 'Shift':
+            case 'Control':
                 if (minimapVisible){
                     minimapVisible = !minimapVisible;
                     minimapCanvas.style.display = minimapVisible ? 'block' : 'none';

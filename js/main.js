@@ -38,7 +38,7 @@ function init() {
     createInGameMenu();
     
     // Start background music - add this line
-    playBackgroundMusic();
+    //playBackgroundMusic();
     
     // Start game loop
     animate();

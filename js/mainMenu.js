@@ -129,18 +129,18 @@ function initMainMenu() {
     cancelJoinButton.style.fontSize = '16px';
     cancelJoinButton.style.cursor = 'pointer';
     
-    // High scores button
-    const highScoresButton = document.createElement('button');
-    highScoresButton.textContent = 'High Scores';
-    highScoresButton.style.width = '100%';
-    highScoresButton.style.padding = '15px';
-    highScoresButton.style.marginBottom = '10px';
-    highScoresButton.style.backgroundColor = '#9C27B0';
-    highScoresButton.style.color = 'white';
-    highScoresButton.style.border = 'none';
-    highScoresButton.style.borderRadius = '5px';
-    highScoresButton.style.fontSize = '16px';
-    highScoresButton.style.cursor = 'pointer';
+    // // High scores button
+    // const highScoresButton = document.createElement('button');
+    // highScoresButton.textContent = 'High Scores';
+    // highScoresButton.style.width = '100%';
+    // highScoresButton.style.padding = '15px';
+    // highScoresButton.style.marginBottom = '10px';
+    // highScoresButton.style.backgroundColor = '#9C27B0';
+    // highScoresButton.style.color = 'white';
+    // highScoresButton.style.border = 'none';
+    // highScoresButton.style.borderRadius = '5px';
+    // highScoresButton.style.fontSize = '16px';
+    // highScoresButton.style.cursor = 'pointer';
     
     // Help button
     const helpButton = document.createElement('button');
@@ -166,7 +166,7 @@ function initMainMenu() {
     menuContainer.appendChild(hostButton);
     menuContainer.appendChild(joinButton);
     menuContainer.appendChild(codeContainer);
-    menuContainer.appendChild(highScoresButton);
+    // menuContainer.appendChild(highScoresButton);
     menuContainer.appendChild(helpButton);
     
     menuOverlay.appendChild(title);
@@ -190,7 +190,7 @@ function initMainMenu() {
         codeContainer.style.display = 'block';
         joinButton.style.display = 'none';
         hostButton.style.display = 'none';
-        highScoresButton.style.display = 'none';
+        // highScoresButton.style.display = 'none';
         helpButton.style.display = 'none';
     });
     
@@ -209,14 +209,14 @@ function initMainMenu() {
         codeContainer.style.display = 'none';
         joinButton.style.display = 'block';
         hostButton.style.display = 'block';
-        highScoresButton.style.display = 'block';
+        // highScoresButton.style.display = 'block';
         helpButton.style.display = 'block';
     });
     
-    highScoresButton.addEventListener('click', () => {
-        playerName = nameInput.value.trim() || "Player";
-        showHighScores();
-    });
+    // highScoresButton.addEventListener('click', () => {
+    //     playerName = nameInput.value.trim() || "Player";
+    //     showHighScores();
+    // });
     
     helpButton.addEventListener('click', () => {
         showHelp();
